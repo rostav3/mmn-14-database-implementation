@@ -6,27 +6,26 @@ package data;
 public class Record {
     private String sortIndex;
     private String[] record;
+    private int recordSize;
 
-    public Record(String [] recordVal, String sortIndexVal){
+    public Record(String [] recordVal, String sortIndexVal, int recordSizeVal){
         sortIndex = sortIndexVal;
         record = recordVal;
+        recordSize = recordSizeVal;
     }
 
     public String getSortIndex() {
         return sortIndex;
     }
 
-    public void setSortIndex(String sortIndex) {
-        this.sortIndex = sortIndex;
-    }
-
     public String[] getRecord() {
         return record;
     }
 
-    public void setRecord(String[] record) {
-        this.record = record;
+    public int getRecordSize() {
+        return recordSize;
     }
+
     public String toString(){
         String returnVal = "";
         for (int i = 0; i < record.length; i++){

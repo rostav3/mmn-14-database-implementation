@@ -43,6 +43,7 @@ public class Main {
                 recordsToSave += "\n";
             }
         }
+        csv = csv.substring(0,csv.indexOf(".")) + "_sort.csv";
         dataLoader.saveDataToCsv(recordsToSave, csv);
     }
 }

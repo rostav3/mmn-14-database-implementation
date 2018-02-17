@@ -17,7 +17,7 @@ public class UserConversation {
      * @return the page size got as input
      */
     public Integer getPageSize(){
-        System.out.println("Please enter page size: ");
+        System.out.println("Please enter page size in bytes: ");
         String pageSizeInput = scanner.nextLine();
         while (!StringUtils.isInteger(pageSizeInput)){
             System.out.println("The input need to be a number and " + pageSizeInput + " isn't. \n " +

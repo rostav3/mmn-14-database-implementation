@@ -46,7 +46,7 @@ public class DataLoader {
             br = new BufferedReader(new FileReader(csvPath));
             while ((line = br.readLine()) != null) {
                 String[] record = line.split(",");
-                list.add(new Record(record, record[0]));
+                list.add(new Record(record, record[0], line.length()));
             }
             br.close();
 

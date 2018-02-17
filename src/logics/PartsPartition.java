@@ -30,10 +30,20 @@ public class PartsPartition {
 
         for (int i = 0; (i < numOfPages) && (lineNumberCounter < data.size()); i++) {
             Page dataPage = new Page();
-            for (int j = 0; (j < pageSize) && (lineNumberCounter < data.size()); j++) {
-                Record record = data.get(lineNumberCounter);
-                dataPage.setRecord(record);
-                lineNumberCounter++;
+            int currPageSize = 0;
+            Record record;
+            while ((currPageSize < pageSize) && (lineNumberCounter < data.size())){
+                record = data.get(lineNumberCounter);
+                currPageSize += record.getRecordSize();
+                if (currPageSize < pageSize){
+                    dataPage.setRecord(record);
+                    lineNumberCounter++;
+                    if (isFromDisk){
+                        System.out.println("Read total of " + currPageSize + " bytes, in page " + (i+1) + " from disk to memory");
+                    }else{
+                        System.out.println("Read total of " + currPageSize + " bytes, in page " + (i+1) + " from memory to disk");
+                    }
+                }
             }
             pages.add(dataPage);
             if (isFromDisk){
