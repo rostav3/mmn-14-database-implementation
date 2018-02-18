@@ -12,7 +12,7 @@ import java.util.List;
 /*************************************************************************************************
  * The main program sorted file by pages, when the pages size and count get by the user.
  * After sort the data, separate to pages and save to the csv.
- * Created by Stav Rockah on 1/21/2018.
+ * Created by Stav Rockah, ID.307900878
  ************************************************************************************************/
 public class Main {
     public static void main(String [] args) {
@@ -32,8 +32,8 @@ public class Main {
 
         // Sot the data
         ExternalSort externalSort = new ExternalSort(pages, pageNumber);
-
         pages = externalSort.getPagesSorted();
+
         // save the sorted data
         String recordsToSave = "";
         for (int i = 0; i < pages.size(); i++){
@@ -41,6 +41,7 @@ public class Main {
             if (i !=pages.size() - 1){
                 recordsToSave += "\n";
             }
+            System.out.println("Read total of " + i + " pages, from memory to disk");
         }
         csv = csv.substring(0,csv.indexOf(".")) + "_sort.csv";
         dataLoader.saveDataToCsv(recordsToSave, csv);

@@ -1,57 +1,73 @@
 package logics;
 
-import data.GroupOfPages;
+import data.PageGroupSorted;
 import data.Page;
 import data.Record;
 import utils.GlobalContexts;
-
 import java.util.*;
 
 /*************************************************************************************************
- * This class handle the sorting
- * Created by Stav Rockah on 1/21/2018.
+ * This class handle all the sorting
+ * In all the algorithm, I decided to save all the data in lists/ groups and not in files.
+ * What simulator the RAM memory size is the data I work with.
+ * Created by Stav Rockah, ID.307900878
  ************************************************************************************************/
 public class ExternalSort {
-
     private List<Page> pagesSorted;
+    private int levelMerge;
+    private int groupMerge;
+
     /**
-     * @param pagesToMerge - the psges need to sort
+     * @param pagesToMerge - the pages need to sort
+     * @param pageCount - the count oof pages in the RAM memory
      */
     public ExternalSort(List<Page> pagesToMerge, int pageCount) {
-
-        ArrayList<List<Record>> groupsSorted = new ArrayList<List<Record>>();
-        ArrayList<Record> groupToSort = new ArrayList<Record>();
-
-        // Run merge sort for each group data - P/M groups
-        for (int i= 0; i < pagesToMerge.size(); i++){
-            if ((i % pageCount == 0) && (groupToSort.size() != 0)){
-                groupsSorted.add(MergeSort(groupToSort));
-                groupToSort = new ArrayList<>();
+        ArrayList<List<Record>> recordsGroups = new ArrayList<>();
+        ArrayList<Record> currRecordsGroup = new ArrayList<>();
+        levelMerge = 1;
+        // Create groups of pageCount * pages
+        // Then, Run merge sort in each group - more effective than run sort for each page
+        int i;
+        for (i= 0; i < pagesToMerge.size(); i++){
+            // If get group of pageCount of pages (as list of record), rum nerge sort and add to the list
+            if ((i % pageCount == 0) && (currRecordsGroup.size() != 0)){
+                System.out.println("Start merge sort in group number " + Math.floor(i / pageCount));
+                recordsGroups.add(MergeSort(currRecordsGroup));
+                System.out.println("End merge sort in group number " + Math.floor(i / pageCount));
+                currRecordsGroup = new ArrayList<>();
             }
+            // Add the records of the page to the current group of the records
             for (Record record:pagesToMerge.get(i).getDataInPage()){
-                groupToSort.add(record);
+                currRecordsGroup.add(record);
             }
         }
-        groupsSorted.add(MergeSort(groupToSort));
-        List<GroupOfPages> partsSorted = new ArrayList<GroupOfPages>();
-        for (List <Record> records : groupsSorted){
-            partsSorted.add(new GroupOfPages(GlobalContexts.partsPartition.getDataByPages(records, true)));
+        System.out.println("Start merge sort in group number " + Math.floor((i-1) / pageCount));
+        recordsGroups.add(MergeSort(currRecordsGroup));
+        System.out.println("End merge sort in group number " + Math.floor((i-1) / pageCount));
+
+        // Return the sorted records to groups of pages
+        List<PageGroupSorted> sortedGroups = new ArrayList<>();
+        for (List <Record> records : recordsGroups){
+            sortedGroups.add(new PageGroupSorted(GlobalContexts.partsPartition.getDataByPages(records, false)));
         }
-        // Merge in Page size
-        // TODO : I need to MARGE M-1 Pages to Pages - like in page 111
-        partsSorted =  MergePages(partsSorted, pageCount-1);
-        while (partsSorted.size() != 1){
-            partsSorted =  MergePages(partsSorted, pageCount-1);
+
+        // Run over the groups and merge them until get one group of all the data sorted as pages
+        sortedGroups =  MergePages(sortedGroups, pageCount-1);
+        while (sortedGroups.size() != 1){
+            sortedGroups =  MergePages(sortedGroups, pageCount-1);
         }
-        System.out.println("yayyyyyyyyyyyyyyyyyyyyyyyyyyyy");
-        pagesSorted = partsSorted.get(0).getPageGroup();
+        pagesSorted = sortedGroups.get(0).getPageGroup();
     }
 
+    /**
+     * @return the data sorted in pages
+     */
     public List<Page> getPagesSorted(){
         return pagesSorted;
     }
+
     /**
-     * This method rn the merge sort algorithm
+     * This method run the merge sort algorithm
      * @param records - The data need to sort
      * @return The data sort.
      */
@@ -61,7 +77,7 @@ public class ExternalSort {
             return records;
         }
 
-        ArrayList<Record> sorted = new ArrayList<Record>();
+        ArrayList<Record> sorted = new ArrayList<>();
         int middle = (int) Math.floor(records.size() / 2);
         List <Record> left = records.subList(0, middle);
         List <Record> right = records.subList(middle, records.size());
@@ -99,66 +115,101 @@ public class ExternalSort {
         return sorted;
     }
 
+    /**
+     * This method get the list of all the groups of the sorted data as pages, and merge groups of "countOfPages" into
+     * new list of groups
+     * @param sortedGroups - The list of all the groups of the sorted data as pages
+     * @param pageCount - The count of pages in the RAM memory without the page left for the merged data.
+     * @return the new list of groupsPage, after merge "countOfPages" groups.
+     */
+    private List<PageGroupSorted> MergePages(List <PageGroupSorted> sortedGroups, int pageCount){
+        List<List<PageGroupSorted>> groupsForMerge = new ArrayList<>();
+        List<PageGroupSorted> group = new ArrayList<>();
+        List<PageGroupSorted> newSortedGroups = new ArrayList<>();
 
-    private List<GroupOfPages> MergePages(List <GroupOfPages> partsSorted, int countOfGroups){
-        List<List<GroupOfPages>> partsForMerge = new ArrayList<List<GroupOfPages>>();
-        List<GroupOfPages> part = new ArrayList<GroupOfPages>();
-        List<GroupOfPages> sortedParts = new ArrayList<GroupOfPages>();
-
-        for (int i = 0; i < partsSorted.size(); i++){
-            if ((i % countOfGroups == 0) && (part.size() != 0)){
-                partsForMerge.add(part);
-                part = new ArrayList<GroupOfPages>();
+        // Create groups of PageGroupSorted in size of "pageCount"
+        for (int i = 0; i < sortedGroups.size(); i++){
+            if ((i % pageCount == 0) && (group.size() != 0)){
+                groupsForMerge.add(group);
+                group = new ArrayList<>();
             }
-            part.add(partsSorted.get(i));
+            group.add(sortedGroups.get(i));
         }
-        partsForMerge.add(part);
+        groupsForMerge.add(group);
 
-        for (int i=0; i < partsForMerge.size(); i++){
-            sortedParts.add(MergePagesCount(partsForMerge.get(i)));
+        // Run each group of pageGroups and merge each group of groupPages to new groupPage sorted as pages
+        for (int i=0; i < groupsForMerge.size(); i++){
+            System.out.println("Merge level: " + levelMerge + ", merge the group of pages number " + i);
+            newSortedGroups.add(MergePagesCount(groupsForMerge.get(i)));
         }
-        return sortedParts;
+        levelMerge++;
+        return newSortedGroups;
     }
 
-    private GroupOfPages MergePagesCount(List<GroupOfPages> partsSorted){
-        List <Page> group = new ArrayList<Page>();
-        Page page = new Page();
-        while (partsSorted.size() != 0){
-            Record record = getMinVal(partsSorted);
-            if (GlobalContexts.partsPartition.isPageFull(page.getPageSize() + record.getRecordSize())){
-                group.add(page);
-                page = new Page();
-            }
-            page.setRecord(record);
-        }
-        group.add(page);
-        return new GroupOfPages(group);
-    }
-    private Record getMinVal(List<GroupOfPages> partsSorted){
-        try {
-            Record minRecord = null;
-            String minVal = "";
-            int index = -1;
-            for (int i= 0; i < partsSorted.size(); i++){
-                Record record = partsSorted.get(i).getPageGroup().get(0).getDataInPage().get(0);
-                if (((minVal.equals("")) || (record.getSortIndex().compareTo(minVal) < 0))){
-                    minVal = record.getSortIndex();
-                    minRecord = record;
-                    index = i;
-                }
-            }
-            partsSorted.get(index).getPageGroup().get(0).getDataInPage().remove(0);
-            if (partsSorted.get(index).getPageGroup().get(0).getDataInPage().size() == 0){
-                partsSorted.get(index).getPageGroup().remove(0);
-            }
-            if (partsSorted.get(index).getPageGroup().size() == 0) {
-                partsSorted.remove(index);
-            }
-            return minRecord;
+    /**
+     * This method get list of groupOfPages and merge them to 1 Group of sorted data in pages
+     * @param sortedGroups - list of groupOfPages needed to merge
+     * @return the list in 1 group, sorted in pages
+     */
+    private PageGroupSorted MergePagesCount(List<PageGroupSorted> sortedGroups){
+        List <Page> group = new ArrayList<>();
+        Page currentPage = new Page();
 
-        }catch (IndexOutOfBoundsException e){
-            System.out.println(e.getMessage());
+        // create the new group until finish run over all the list that got as parameter.
+        while (sortedGroups.size() != 0){
+            // Get the minimum record from all the list
+            Record record = getMinVal(sortedGroups);
+
+            // If the minimum record can enter to the current page enter him.
+            // If not, save the Page in the sorted group, create new Page and enter the the current record to him.
+            if (!GlobalContexts.partsPartition.isRecordCanAdd(currentPage.getPageSize(), record.getRecordSize())){
+                group.add(currentPage);
+                currentPage = new Page();
+            }
+            currentPage.setRecord(record);
         }
-        return null;
+        group.add(currentPage);
+        return new PageGroupSorted(group);
+    }
+
+    /**
+     * run over the first value in the first page in each group and get the minimum value.
+     * @param sortedGroups - list of sorted PageGroupSorted
+     * @return the minimum record (By the sortedIndex)
+     */
+    private Record getMinVal(List<PageGroupSorted> sortedGroups){
+        Record minRecord = null;
+        String minVal = "";
+        int index = -1;
+
+        // Run over all the groups and check the first value of each first page in each group
+        for (int i= 0; i < sortedGroups.size(); i++){
+            Page firstPage = sortedGroups.get(i).getPageGroup().get(0);
+            Record record = firstPage.getDataInPage().get(0);
+
+            // If it's smaller from the minVal or it's the first value checked
+            if (((minVal.equals("")) || (record.getSortIndex().compareTo(minVal) < 0))){
+                minVal = record.getSortIndex();
+                minRecord = record;
+                index = i;
+            }
+        }
+
+        Page pageWithMinVal = sortedGroups.get(index).getPageGroup().get(0);
+
+        // Remove the minRecord
+        pageWithMinVal.getDataInPage().remove(0);
+
+        // If after the remove the Page is empty, remove him.
+        if (pageWithMinVal.getDataInPage().size() == 0){
+            sortedGroups.get(index).getPageGroup().remove(0);
+        }
+
+        // If after the remove the Group of the pages is empty, remove him.
+        if (sortedGroups.get(index).getPageGroup().size() == 0) {
+            sortedGroups.remove(index);
+        }
+
+        return minRecord;
     }
 }

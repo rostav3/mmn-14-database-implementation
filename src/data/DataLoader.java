@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 /*************************************************************************************************
  * This class handle the files load and save.
- * Created by Stav Rockah on 1/21/2018.
+ * Created by Stav Rockah, ID.307900878
  ************************************************************************************************/
 public class DataLoader {
 
@@ -15,20 +15,15 @@ public class DataLoader {
      * @param csvPath - The csv path for save the data
      */
     public void saveDataToCsv(String data, String csvPath){
-        PrintWriter writer = null;
+        PrintWriter writer;
         try {
             writer = new PrintWriter(csvPath, "UTF-8");
             writer.println(data);
             writer.close();
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Error while try to save the data to file");
-            System.exit(1);
-        } catch (UnsupportedEncodingException e) {
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             System.out.println("Error while try to save the data to file");
             System.exit(1);
         }
-
     }
 
     /**
@@ -37,19 +32,16 @@ public class DataLoader {
      * @return the data from the csv as list of Record
      */
     public ArrayList<Record> loadCsvData(String csvPath) {
-        BufferedReader br = null;
-        String line = "";
-        ArrayList<Record> list = new ArrayList<Record>();
-
+        BufferedReader br;
+        String line;
+        ArrayList<Record> list = new ArrayList<>();
         try {
-
             br = new BufferedReader(new FileReader(csvPath));
             while ((line = br.readLine()) != null) {
                 String[] record = line.split(",");
                 list.add(new Record(record, record[0], line.length()));
             }
             br.close();
-
         } catch (IOException e) {
             System.out.println("Error while try to load the file");
             System.exit(1);

@@ -3,25 +3,45 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by stav on 2/1/2018.
- */
+/*************************************************************************************************
+ * Pojo class present Page.
+ * Created by Stav Rockah, ID.307900878
+ ************************************************************************************************/
 public class Page {
     private List<Record> dataInPage;
     private int pageSize;
 
     public Page(){
-        dataInPage = new ArrayList<Record>();
+        dataInPage = new ArrayList<>();
         pageSize = 0;
     }
 
+    /**
+     * Set the record in the page and add his size to page size parameter.
+     * @param record - the record to add.
+     */
     public void setRecord(Record record){
         dataInPage.add(record);
         pageSize += record.getRecordSize();
     }
+
+    /**
+     * @return the records in the page.
+     */
     public List<Record> getDataInPage(){
         return dataInPage;
     }
+
+    /**
+     * @return the page size.
+     */
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    /**
+     * @return the page as string of lines in csv file
+     */
     public String toString(){
         String returnVal = "";
         for (int i = 0; i < dataInPage.size(); i++){
@@ -31,13 +51,5 @@ public class Page {
             }
         }
         return returnVal;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
     }
 }

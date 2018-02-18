@@ -1,8 +1,9 @@
 package data;
 
-/**
- * Created by stav on 2/1/2018.
- */
+/*************************************************************************************************
+ * Pojo class present Record.
+ * Created by Stav Rockah, ID.307900878
+ ************************************************************************************************/
 public class Record {
     private String sortIndex;
     private String[] record;
@@ -14,18 +15,23 @@ public class Record {
         recordSize = recordSizeVal;
     }
 
+    /**
+     * @return the index we sort by all the data
+     */
     public String getSortIndex() {
         return sortIndex;
     }
 
-    public String[] getRecord() {
-        return record;
-    }
-
+    /**
+     * @return the record size in bytes
+     */
     public int getRecordSize() {
         return recordSize;
     }
 
+    /**
+     * @return the record as string line in csv file
+     */
     public String toString(){
         String returnVal = "";
         for (int i = 0; i < record.length; i++){

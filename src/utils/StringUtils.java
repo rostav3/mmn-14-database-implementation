@@ -2,10 +2,9 @@ package utils;
 
 /*************************************************************************************************
  * This class contain utils for string.
- * Created by Stav Rockah on 1/21/2018.
+ * Created by Stav Rockah, ID.307900878
  ************************************************************************************************/
 public class StringUtils {
-
     /**
      * The method check if the string is integer
      * @param str - the string need to check if integer

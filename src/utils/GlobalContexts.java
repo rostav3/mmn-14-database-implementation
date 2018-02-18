@@ -2,9 +2,10 @@ package utils;
 
 import logics.PartsPartition;
 
-/**
- * Created by stav on 2/18/2018.
- */
+/*************************************************************************************************
+ * The Gloobal params for the project
+ * Created by Stav Rockah, ID.307900878
+ ************************************************************************************************/
 public class GlobalContexts {
     public static PartsPartition partsPartition;
 }
