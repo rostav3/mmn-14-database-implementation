@@ -7,6 +7,7 @@ import ui.UserConversation;
 import utils.GlobalContexts;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /*************************************************************************************************
  * The main program sorted file by pages, when the pages size and count get by the user.
@@ -27,16 +28,12 @@ public class Main {
 
         // Split to pages by user inputs
         GlobalContexts.partsPartition = new PartsPartition(pageSize);
-        ArrayList<Page> pages =  GlobalContexts.partsPartition.getDataByPages(data, true);
+        List<Page> pages =  GlobalContexts.partsPartition.getDataByPages(data, true);
 
         // Sot the data
         ExternalSort externalSort = new ExternalSort(pages, pageNumber);
 
-        // Split to sort data by user inputs
-//        System.out.println("Split the sort list to pages..");
-//        pages =  partsPartition.getDataByPages(externalSort.getRecords(), false);
-
-
+        pages = externalSort.getPagesSorted();
         // save the sorted data
         String recordsToSave = "";
         for (int i = 0; i < pages.size(); i++){

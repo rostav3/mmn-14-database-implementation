@@ -33,7 +33,7 @@ public class PartsPartition {
             while ((currPageSize < pageSize) && (lineNumberCounter < data.size())){
                 Record record = data.get(lineNumberCounter);
                 currPageSize += record.getRecordSize();
-                if (currPageSize <= pageSize) {
+                if (!isPageFull(currPageSize)) {
                     dataPage.setRecord(record);
                     lineNumberCounter++;
                     if (isFromDisk){
@@ -54,18 +54,7 @@ public class PartsPartition {
         return pages;
     }
 
-    public Page getFirstPage(List <Record> data){
-        Page dataPage = new Page();
-        int currPageSize = 0;
-        while (currPageSize < pageSize){
-            Record record = data.get(0);
-            data.remove(0);
-            currPageSize += record.getRecordSize();
-            if (currPageSize > pageSize){
-                return dataPage;
-            }
-            dataPage.setRecord(record);
-        }
-        return dataPage;
+    public boolean isPageFull(int size){
+        return size > pageSize;
     }
 }

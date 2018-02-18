@@ -7,17 +7,17 @@ import java.util.List;
  * Created by stav on 2/1/2018.
  */
 public class Page {
-    public List<Record> dataInPage;
+    private List<Record> dataInPage;
+    private int pageSize;
 
     public Page(){
         dataInPage = new ArrayList<Record>();
+        pageSize = 0;
     }
 
     public void setRecord(Record record){
         dataInPage.add(record);
-    }
-    public void setDataInPage(List<Record> value){
-        dataInPage = value;
+        pageSize += record.getRecordSize();
     }
     public List<Record> getDataInPage(){
         return dataInPage;
@@ -31,5 +31,13 @@ public class Page {
             }
         }
         return returnVal;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 }

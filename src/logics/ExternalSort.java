@@ -1,11 +1,11 @@
 package logics;
 
+import data.GroupOfPages;
 import data.Page;
 import data.Record;
 import utils.GlobalContexts;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*************************************************************************************************
  * This class handle the sorting
@@ -13,10 +13,11 @@ import java.util.List;
  ************************************************************************************************/
 public class ExternalSort {
 
+    private List<Page> pagesSorted;
     /**
      * @param pagesToMerge - the psges need to sort
      */
-    public ExternalSort(ArrayList<Page> pagesToMerge, int pageCount) {
+    public ExternalSort(List<Page> pagesToMerge, int pageCount) {
 
         ArrayList<List<Record>> groupsSorted = new ArrayList<List<Record>>();
         ArrayList<Record> groupToSort = new ArrayList<Record>();
@@ -32,14 +33,23 @@ public class ExternalSort {
             }
         }
         groupsSorted.add(MergeSort(groupToSort));
-        System.out.println("dd");
-//        ArrayList<ArrayList<Page>> = new ArrayList<ArrayList<Page>>();
-//        GlobalContexts.partsPartition.getDataByPages()
+        List<GroupOfPages> partsSorted = new ArrayList<GroupOfPages>();
+        for (List <Record> records : groupsSorted){
+            partsSorted.add(new GroupOfPages(GlobalContexts.partsPartition.getDataByPages(records, true)));
+        }
         // Merge in Page size
         // TODO : I need to MARGE M-1 Pages to Pages - like in page 111
-
+        partsSorted =  MergePages(partsSorted, pageCount-1);
+        while (partsSorted.size() != 1){
+            partsSorted =  MergePages(partsSorted, pageCount-1);
+        }
+        System.out.println("yayyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+        pagesSorted = partsSorted.get(0).getPageGroup();
     }
 
+    public List<Page> getPagesSorted(){
+        return pagesSorted;
+    }
     /**
      * This method rn the merge sort algorithm
      * @param records - The data need to sort
@@ -87,5 +97,68 @@ public class ExternalSort {
             }
         }
         return sorted;
+    }
+
+
+    private List<GroupOfPages> MergePages(List <GroupOfPages> partsSorted, int countOfGroups){
+        List<List<GroupOfPages>> partsForMerge = new ArrayList<List<GroupOfPages>>();
+        List<GroupOfPages> part = new ArrayList<GroupOfPages>();
+        List<GroupOfPages> sortedParts = new ArrayList<GroupOfPages>();
+
+        for (int i = 0; i < partsSorted.size(); i++){
+            if ((i % countOfGroups == 0) && (part.size() != 0)){
+                partsForMerge.add(part);
+                part = new ArrayList<GroupOfPages>();
+            }
+            part.add(partsSorted.get(i));
+        }
+        partsForMerge.add(part);
+
+        for (int i=0; i < partsForMerge.size(); i++){
+            sortedParts.add(MergePagesCount(partsForMerge.get(i)));
+        }
+        return sortedParts;
+    }
+
+    private GroupOfPages MergePagesCount(List<GroupOfPages> partsSorted){
+        List <Page> group = new ArrayList<Page>();
+        Page page = new Page();
+        while (partsSorted.size() != 0){
+            Record record = getMinVal(partsSorted);
+            if (GlobalContexts.partsPartition.isPageFull(page.getPageSize() + record.getRecordSize())){
+                group.add(page);
+                page = new Page();
+            }
+            page.setRecord(record);
+        }
+        group.add(page);
+        return new GroupOfPages(group);
+    }
+    private Record getMinVal(List<GroupOfPages> partsSorted){
+        try {
+            Record minRecord = null;
+            String minVal = "";
+            int index = -1;
+            for (int i= 0; i < partsSorted.size(); i++){
+                Record record = partsSorted.get(i).getPageGroup().get(0).getDataInPage().get(0);
+                if (((minVal.equals("")) || (record.getSortIndex().compareTo(minVal) < 0))){
+                    minVal = record.getSortIndex();
+                    minRecord = record;
+                    index = i;
+                }
+            }
+            partsSorted.get(index).getPageGroup().get(0).getDataInPage().remove(0);
+            if (partsSorted.get(index).getPageGroup().get(0).getDataInPage().size() == 0){
+                partsSorted.get(index).getPageGroup().remove(0);
+            }
+            if (partsSorted.get(index).getPageGroup().size() == 0) {
+                partsSorted.remove(index);
+            }
+            return minRecord;
+
+        }catch (IndexOutOfBoundsException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }
