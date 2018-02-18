@@ -2,6 +2,8 @@ package logics;
 
 import data.Page;
 import data.Record;
+import utils.GlobalContexts;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,26 +12,31 @@ import java.util.List;
  * Created by Stav Rockah on 1/21/2018.
  ************************************************************************************************/
 public class ExternalSort {
-    private List<Record> records;
 
     /**
      * @param pagesToMerge - the psges need to sort
      */
-    public ExternalSort(ArrayList<Page> pagesToMerge) {
-        records = new ArrayList<Record>();
+    public ExternalSort(ArrayList<Page> pagesToMerge, int pageCount) {
 
-        // Merge all the pages
-        System.out.println("Marge the pages to list..");
-        for (Page page : pagesToMerge){
-            for (Record record : page.getDataInPage()){
-                records.add(record);
+        ArrayList<List<Record>> groupsSorted = new ArrayList<List<Record>>();
+        ArrayList<Record> groupToSort = new ArrayList<Record>();
+
+        // Run merge sort for each group data - P/M groups
+        for (int i= 0; i < pagesToMerge.size(); i++){
+            if ((i % pageCount == 0) && (groupToSort.size() != 0)){
+                groupsSorted.add(MergeSort(groupToSort));
+                groupToSort = new ArrayList<>();
+            }
+            for (Record record:pagesToMerge.get(i).getDataInPage()){
+                groupToSort.add(record);
             }
         }
-
-        // set the records after the sort
-        System.out.println("Begin merge sort..");
-        records = MergeSort(records);
-        System.out.println("Finish merge sort :)");
+        groupsSorted.add(MergeSort(groupToSort));
+        System.out.println("dd");
+//        ArrayList<ArrayList<Page>> = new ArrayList<ArrayList<Page>>();
+//        GlobalContexts.partsPartition.getDataByPages()
+        // Merge in Page size
+        // TODO : I need to MARGE M-1 Pages to Pages - like in page 111
 
     }
 
@@ -80,9 +87,5 @@ public class ExternalSort {
             }
         }
         return sorted;
-    }
-
-    public List<Record> getRecords() {
-        return records;
     }
 }

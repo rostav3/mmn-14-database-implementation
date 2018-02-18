@@ -4,6 +4,8 @@ import data.Record;
 import logics.ExternalSort;
 import logics.PartsPartition;
 import ui.UserConversation;
+import utils.GlobalContexts;
+
 import java.util.ArrayList;
 
 /*************************************************************************************************
@@ -24,15 +26,15 @@ public class Main {
         ArrayList<Record> data = dataLoader.loadCsvData(csv);
 
         // Split to pages by user inputs
-        PartsPartition partsPartition = new PartsPartition(pageSize, pageNumber);
-        ArrayList<Page> pages =  partsPartition.getDataByPages(data, true);
+        GlobalContexts.partsPartition = new PartsPartition(pageSize);
+        ArrayList<Page> pages =  GlobalContexts.partsPartition.getDataByPages(data, true);
 
         // Sot the data
-        ExternalSort externalSort = new ExternalSort(pages);
+        ExternalSort externalSort = new ExternalSort(pages, pageNumber);
 
         // Split to sort data by user inputs
-        System.out.println("Split the sort list to pages..");
-        pages =  partsPartition.getDataByPages(externalSort.getRecords(), false);
+//        System.out.println("Split the sort list to pages..");
+//        pages =  partsPartition.getDataByPages(externalSort.getRecords(), false);
 
 
         // save the sorted data
